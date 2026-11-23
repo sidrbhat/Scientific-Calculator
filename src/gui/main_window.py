@@ -1,3 +1,4 @@
+
 import sys
 
 from PySide6.QtWidgets import (
@@ -31,6 +32,10 @@ class CalculatorWindow(QMainWindow):
         self.memory = 0
         self.history = []
 
+        self.graph_window = None
+        self.complex_window = None
+        self.calculus_window = None
+
         self.setWindowTitle("Scientific Calculator")
         self.resize(1000, 720)
 
@@ -50,7 +55,6 @@ class CalculatorWindow(QMainWindow):
 
         title = QLabel("🧮 Scientific Calculator")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
         title.setStyleSheet("""
             QLabel {
                 font-size: 28px;
@@ -58,7 +62,6 @@ class CalculatorWindow(QMainWindow):
                 padding: 10px;
             }
         """)
-
         main_layout.addWidget(title)
 
         # TOP TOOLBAR
@@ -83,7 +86,6 @@ class CalculatorWindow(QMainWindow):
             "Green",
             "Sunset",
         ])
-
         self.theme_combo.currentTextChanged.connect(
             self.apply_theme
         )
@@ -93,19 +95,13 @@ class CalculatorWindow(QMainWindow):
 
         toolbar.addStretch()
 
-        # GRAPH BUTTON
-
         graph_button = QPushButton("📈 Graph")
         graph_button.clicked.connect(self.open_graph)
         toolbar.addWidget(graph_button)
 
-        # COMPLEX BUTTON
-
         complex_button = QPushButton("🧭 Complex / Phasor")
         complex_button.clicked.connect(self.open_complex)
         toolbar.addWidget(complex_button)
-
-        # CALCULUS BUTTON
 
         calculus_button = QPushButton("∫ Calculus")
         calculus_button.clicked.connect(self.open_calculus)
@@ -117,14 +113,9 @@ class CalculatorWindow(QMainWindow):
 
         self.display = QLineEdit()
         self.display.setReadOnly(True)
-
-        self.display.setAlignment(
-            Qt.AlignmentFlag.AlignRight
-        )
-
+        self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.display.setText("0")
         self.display.setMinimumHeight(65)
-
         self.display.setStyleSheet("""
             QLineEdit {
                 font-size: 30px;
@@ -132,29 +123,24 @@ class CalculatorWindow(QMainWindow):
                 border-radius: 12px;
             }
         """)
-
         main_layout.addWidget(self.display)
 
         # HISTORY
 
         history_label = QLabel("History")
-
         history_label.setStyleSheet("""
             QLabel {
                 font-size: 14px;
                 font-weight: bold;
             }
         """)
-
         main_layout.addWidget(history_label)
 
         self.history_display = QLineEdit()
         self.history_display.setReadOnly(True)
-
         self.history_display.setPlaceholderText(
             "Previous calculation..."
         )
-
         main_layout.addWidget(self.history_display)
 
         # MEMORY BUTTONS
@@ -170,7 +156,6 @@ class CalculatorWindow(QMainWindow):
         ]
 
         for text, function in memory_buttons:
-
             button = QPushButton(text)
             button.clicked.connect(function)
             memory_layout.addWidget(button)
@@ -182,7 +167,6 @@ class CalculatorWindow(QMainWindow):
         grid = QGridLayout()
 
         buttons = [
-
             [
                 ("C", self.clear),
                 ("⌫", self.backspace),
@@ -190,7 +174,6 @@ class CalculatorWindow(QMainWindow):
                 (")", lambda: self.add_text(")")),
                 ("÷", lambda: self.add_text("÷")),
             ],
-
             [
                 ("sin", lambda: self.add_function("sin(")),
                 ("cos", lambda: self.add_function("cos(")),
@@ -198,7 +181,6 @@ class CalculatorWindow(QMainWindow):
                 ("7", lambda: self.add_text("7")),
                 ("8", lambda: self.add_text("8")),
             ],
-
             [
                 ("sin⁻¹", lambda: self.add_function("asin(")),
                 ("cos⁻¹", lambda: self.add_function("acos(")),
@@ -206,7 +188,6 @@ class CalculatorWindow(QMainWindow):
                 ("9", lambda: self.add_text("9")),
                 ("×", lambda: self.add_text("×")),
             ],
-
             [
                 ("sinh", lambda: self.add_function("sinh(")),
                 ("cosh", lambda: self.add_function("cosh(")),
@@ -214,7 +195,6 @@ class CalculatorWindow(QMainWindow):
                 ("4", lambda: self.add_text("4")),
                 ("5", lambda: self.add_text("5")),
             ],
-
             [
                 ("log", lambda: self.add_function("log10(")),
                 ("ln", lambda: self.add_function("ln(")),
@@ -222,7 +202,6 @@ class CalculatorWindow(QMainWindow):
                 ("6", lambda: self.add_text("6")),
                 ("−", lambda: self.add_text("−")),
             ],
-
             [
                 ("π", lambda: self.add_text("π")),
                 ("e", lambda: self.add_text("e")),
@@ -230,7 +209,6 @@ class CalculatorWindow(QMainWindow):
                 ("1", lambda: self.add_text("1")),
                 ("2", lambda: self.add_text("2")),
             ],
-
             [
                 ("xʸ", lambda: self.add_text("^")),
                 ("eˣ", lambda: self.add_function("exp(")),
@@ -238,7 +216,6 @@ class CalculatorWindow(QMainWindow):
                 ("3", lambda: self.add_text("3")),
                 ("+", lambda: self.add_text("+")),
             ],
-
             [
                 ("abs", lambda: self.add_function("abs(")),
                 ("floor", lambda: self.add_function("floor(")),
@@ -249,7 +226,6 @@ class CalculatorWindow(QMainWindow):
         ]
 
         for row, button_row in enumerate(buttons):
-
             for column, (text, function) in enumerate(button_row):
 
                 button = QPushButton(text)
@@ -258,8 +234,6 @@ class CalculatorWindow(QMainWindow):
                 button.clicked.connect(function)
 
                 grid.addWidget(button, row, column)
-
-        # EQUAL BUTTON
 
         equal_button = QPushButton("=")
         equal_button.setMinimumHeight(52)
@@ -313,7 +287,6 @@ class CalculatorWindow(QMainWindow):
             return
 
         try:
-
             result = self.engine.calculate(expression)
 
             self.history.append(
@@ -324,10 +297,9 @@ class CalculatorWindow(QMainWindow):
                 f"{expression} = {result}"
             )
 
-            self.display.setText(result)
+            self.display.setText(str(result))
 
         except Exception as exc:
-
             QMessageBox.warning(
                 self,
                 "Calculation Error",
@@ -368,31 +340,37 @@ class CalculatorWindow(QMainWindow):
         self.memory = self.get_numeric_display()
 
     # ==========================================================
-    # GRAPH
+    # OPEN CHILD WINDOWS
     # ==========================================================
+
+    def show_child_window(self, window):
+
+        window.setWindowFlags(
+            Qt.WindowType.Window
+        )
+
+        window.setWindowModality(
+            Qt.WindowModality.NonModal
+        )
+
+        window.show()
+        window.raise_()
+        window.activateWindow()
 
     def open_graph(self):
 
         self.graph_window = GraphWindow(self)
-        self.graph_window.show()
-
-    # ==========================================================
-    # COMPLEX / PHASOR
-    # ==========================================================
+        self.show_child_window(self.graph_window)
 
     def open_complex(self):
 
         self.complex_window = ComplexWindow(self)
-        self.complex_window.show()
-
-    # ==========================================================
-    # CALCULUS
-    # ==========================================================
+        self.show_child_window(self.complex_window)
 
     def open_calculus(self):
 
         self.calculus_window = CalculusWindow(self)
-        self.calculus_window.show()
+        self.show_child_window(self.calculus_window)
 
     # ==========================================================
     # THEMES
